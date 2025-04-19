@@ -1,5 +1,6 @@
-class Proceso {
-    constructor(duracion, bloqueos = []) {
+export class Proceso {
+    constructor(nombre, duracion, bloqueos = []) {
+        this.nombre = nombre;
         this.duracion = duracion; // en ms
         this.bloqueos = bloqueos; // [{ en: ms, duracion: ms }]
         this.estado = '⚪ Inactivo';
@@ -17,11 +18,11 @@ class Proceso {
 
     pulso(tick) {
         this.tiempoTranscurrido = tick;
-        this.actualizar();
+        this.actualizarEstado();
+        this.aumentarContadores();
     }
 
-    actualizar() {
-    
+    actualizarEstado() {
         if (this.tiempoTranscurrido === this.tiempoInicio)   
         { this.estado = '🟢 Ejecutando'; }
 
@@ -29,50 +30,32 @@ class Proceso {
         { this.estado = '🔴 Bloqueado';}
 
         if(this.bloqueos[this.cabeceraBloqueo].duracion === this.tiempo_enBloqueo) { 
+            this.modificarProceso('Desbloquear');
             this.estado = '🟢 Ejecutando';
-            this.tiempo_enBloqueo = 0;
-            if(this.bloqueos.length > this.cabeceraBloqueo + 1) { this.cabeceraBloqueo++ };
         }
 
+        if(this.tiempoEjecutado === this.duracion)
+        { this.estado = '✅ Finalizado'; }        
+    }
+
+    aumentarContadores() {
         if(this.estado === '🔴 Bloqueado')
         { this.tiempo_enBloqueo++; }
 
-        if(this.tiempoEjecutado === this.duracion)
-        { this.estado = '✅ Finalizado'; }
-
         if(this.estado === '🟢 Ejecutando')
         { this.tiempoEjecutado++; }
+    }
 
-        console.log(this.estado);
+    modificarProceso(comando) {
+        switch(comando) {
+            case 'Desbloquear':
+                this.tiempo_enBloqueo = 0;
+                if(this.bloqueos.length > this.cabeceraBloqueo + 1) { this.cabeceraBloqueo++ };
+                break;
+
+            default:
+                console.log('Que Dios se apiade...');
+                break;
+        }
     }
 }
-
-function reloj(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-const bloqueos = [
-    { empiezaEn: 2, duracion: 3 },
-    { empiezaEn: 9, duracion: 1 },
-];
-
-const bloqueos2 = [
-    { empiezaEn: 5, duracion: 4 },
-];
-
-
-const proceso = new Proceso(10, bloqueos);
-const proceso2 = new Proceso(13, bloqueos2);
-console.log(proceso.estado);
-proceso.iniciar(0);
-
-for (let tick = 0; tick < 35; tick++) {
-    reloj(tick * 1000).then(() => { 
-        console.log('Tick no. ' + tick);
-        proceso.pulso(tick);
-        proceso2.pulso(tick);
-    });
-}
-  
-
-
