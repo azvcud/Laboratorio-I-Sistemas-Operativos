@@ -1,58 +1,64 @@
 export class Proceso {
-    constructor(nombre, duracion, bloqueos = []) {
+    constructor(nombre, tiempoInicio, duracion, bloqueos = []) {
         this.nombre = nombre;
-        this.duracion = duracion; // en ms
-        this.bloqueos = bloqueos; // [{ en: ms, duracion: ms }]
+        this.duracion = duracion;
+        this.bloqueos = bloqueos; // [{ empiezaEn: n, duracion: n }, ...]
         this.estado = '⚪ Inactivo';
         this.tiempoEjecutado = 0;
         this.tiempoTranscurrido = 0;
-        this.tiempoInicio = 0;
+        this.tiempoInicio = tiempoInicio;
         this.tiempo_enBloqueo = 0;
         this.cabeceraBloqueo = 0;
+        this.bloqueosFinalizados = false;
     }
   
-    iniciar(s_tiempoInicio) {
-        this.tiempoInicio = s_tiempoInicio;
+    iniciar() {
         this.estado = '🔵 Iniciando';
     } 
 
-    pulso(tick) {
+    señal(tick) {
         this.tiempoTranscurrido = tick;
-        this.actualizarEstado();
-        this.aumentarContadores();
+        this.actualizarProceso();
+        this.actualizarContadores();
     }
 
-    actualizarEstado() {
-        if (this.tiempoTranscurrido === this.tiempoInicio)   
-        { this.estado = '🟢 Ejecutando'; }
+    actualizarProceso() {
+        if (this.tiempoTranscurrido === this.tiempoInicio) 
+        { this.estado = '🟡 Esperando'; }
 
-        if(this.bloqueos[this.cabeceraBloqueo].empiezaEn === this.tiempoTranscurrido) 
-        { this.estado = '🔴 Bloqueado';}
-
-        if(this.bloqueos[this.cabeceraBloqueo].duracion === this.tiempo_enBloqueo) { 
+        if(this.bloqueos[this.cabeceraBloqueo].duracion === this.tiempo_enBloqueo && !this.bloqueosFinalizados) {
             this.modificarProceso('Desbloquear');
-            this.estado = '🟢 Ejecutando';
+            this.estado = '🟡 Esperando'; 
         }
 
+        if(this.bloqueos[this.cabeceraBloqueo].empiezaEn === this.tiempoEjecutado && !this.bloqueosFinalizados) 
+        { this.estado = '🔴 Bloqueado'; }
+
         if(this.tiempoEjecutado === this.duracion)
-        { this.estado = '✅ Finalizado'; }        
+        { this.estado = '✅ Finalizado'; } 
     }
 
-    aumentarContadores() {
-        if(this.estado === '🔴 Bloqueado')
-        { this.tiempo_enBloqueo++; }
+    actualizarContadores() {
+        if (this.estado === '🔴 Bloqueado' ) { this.tiempo_enBloqueo++; }
+        if (this.estado === '🟢 Ejecutando') { this.tiempoEjecutado++; }
+    }
 
-        if(this.estado === '🟢 Ejecutando')
-        { this.tiempoEjecutado++; }
+    ejecutar() {
+        this.estado = '🟢 Ejecutando';
+        this.tiempoEjecutado++;
     }
 
     modificarProceso(comando) {
         switch(comando) {
             case 'Desbloquear':
                 this.tiempo_enBloqueo = 0;
-                if(this.bloqueos.length > this.cabeceraBloqueo + 1) { this.cabeceraBloqueo++ };
+                
+                if(this.bloqueos.length > this.cabeceraBloqueo + 1) 
+                { this.cabeceraBloqueo++ }
+                else 
+                { this.bloqueosFinalizados = true; }
+                
                 break;
-
             default:
                 console.log('Que Dios se apiade...');
                 break;
