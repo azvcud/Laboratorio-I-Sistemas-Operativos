@@ -8,7 +8,7 @@ const reloj = {
 };
 
 const bloqueoA = [
-    { empiezaEn: 2, duracion: 5 },
+    { empiezaEn: 3, duracion: 9 },
 ];
 
 const bloqueoB = [
@@ -43,7 +43,7 @@ const bloqueoG = [
 ];
 
 const procesos = [
-    new Proceso('A', 1, 10, bloqueoA),
+    new Proceso('A', 0, 8, bloqueoA),
     new Proceso('B', 2, 16, bloqueoB),
     new Proceso('C', 3, 12, bloqueoC),
     new Proceso('D', 5, 22, bloqueoD),
@@ -54,7 +54,7 @@ const procesos = [
 //algoritmosPlanificacion.primeroEntrar_primeroSalir
 //algoritmosPlanificacion.trabajoMas_corto
 //algoritmosPlanificacion.tiempoRestante_masCorto
-const planificadorCPU = new Planificador(procesos, algoritmosPlanificacion.primeroEntrar_primeroSalir);
+const planificadorCPU = new Planificador(procesos, algoritmosPlanificacion.roundRobin);
 planificadorCPU.iniciar();
 planificadorCPU.setQuantum(3);
 

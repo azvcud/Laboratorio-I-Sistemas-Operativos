@@ -26,11 +26,8 @@ export class Planificador {
 
         if(quantumActivado)
         {
-            console.log(this.contadorQuantum);
             if(this.contadorQuantum === this.quantum + 1) { this.contadorQuantum = 0; }
             if(this.colaEspera.size === 0 && this.procesoEjecucion === null) { this.contadorQuantum = 0; }
-            
-            console.log(this.contadorQuantum);
         }
 
         if(this.procesoEjecucion === null)
@@ -50,16 +47,8 @@ export class Planificador {
             this.procesoEjecucion = null;
         }
 
-        if(this.contadorQuantum === 0) { console.log('🧊 Quantum'); }
-
+        this.visualizarDatosConsola();
         this.contadorQuantum++; 
-        console.log(this.contadorQuantum);
-
-        if(this.procesoEjecucion === null)  { console.log('🟢 Proceso en ejecución: ' ); }
-        else                                { console.log('🟢 Proceso en ejecución: ' + this.procesoEjecucion.nombre); }
-        console.log('🔴 Cola de bloqueo: '); console.log(new Set([...this.colaBloqueo].map(proceso => proceso.nombre)));
-        console.log('🟡 Cola de espera: '); console.log(new Set([...this.colaEspera].map(proceso => proceso.nombre)));
-        console.log('✅ Procesos finalizados: '); console.log(this.procesosTerminados.map(proceso => proceso.nombre));
     }
 
     encolarProceso(proceso) {
@@ -98,5 +87,14 @@ export class Planificador {
         { this.quantum = quantum; }
         else
         { console.log('El planificador no tiene asignado el algoritmo Round Robin'); }
+    }
+
+    visualizarDatosConsola() {
+        if(this.contadorQuantum === 0) { console.log('🧊 Quantum'); }
+        if(this.procesoEjecucion === null)  { console.log('🟢 Proceso en ejecución: ' ); }
+        else                                { console.log('🟢 Proceso en ejecución: ' + this.procesoEjecucion.nombre); }
+        console.log('🔴 Cola de bloqueo: '); console.log(new Set([...this.colaBloqueo].map(proceso => proceso.nombre)));
+        console.log('🟡 Cola de espera: '); console.log(new Set([...this.colaEspera].map(proceso => proceso.nombre)));
+        console.log('✅ Procesos finalizados: '); console.log(this.procesosTerminados.map(proceso => proceso.nombre));
     }
 }
