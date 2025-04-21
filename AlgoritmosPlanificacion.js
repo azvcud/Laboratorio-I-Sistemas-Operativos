@@ -1,5 +1,5 @@
-const primeroEntrar_primeroSalir = (procesos) => {
-    const procesosEspera = procesos.filter(proceso => proceso.estado === '🟡 Esperando');
+const primeroEntrar_primeroSalir = (colaEspera) => {
+    const procesosEspera = Array.from(colaEspera);
     const proceso_tiempoInicio_menor = procesosEspera.length > 0 
         ? procesosEspera.reduce((proceso_tiempoInicio_menor, proceso) => proceso.tiempoInicio < proceso_tiempoInicio_menor.tiempoInicio 
             ? proceso 
@@ -9,8 +9,8 @@ const primeroEntrar_primeroSalir = (procesos) => {
     return proceso_tiempoInicio_menor;
 };
 
-const trabajoMas_corto = (procesos) => {
-    const procesosEspera = procesos.filter(proceso => proceso.estado === '🟡 Esperando');
+const trabajoMas_corto = (colaEspera) => {
+    const procesosEspera = Array.from(colaEspera);
     const proceso_duracionMenor = procesosEspera.length > 0 
         ? procesosEspera.reduce((proceso_duracionMenor, proceso) => proceso.duracion < proceso_duracionMenor.duracion
             ? proceso 
@@ -20,8 +20,8 @@ const trabajoMas_corto = (procesos) => {
     return proceso_duracionMenor;
 };
 
-const tiempoRestante_masCorto = (procesos) => {
-    const procesosEspera = procesos.filter(proceso => proceso.estado === '🟡 Esperando');
+const tiempoRestante_masCorto = (colaEspera) => {
+    const procesosEspera = Array.from(colaEspera);
     const proceso_tiempoRestante_menor = procesosEspera.length > 0 
         ? procesosEspera.reduce((proceso_tiempoRestante_menor, proceso) => {
             const tiempoRestante        = proceso.duracion - proceso.tiempoEjecutado;
@@ -33,11 +33,11 @@ const tiempoRestante_masCorto = (procesos) => {
     return proceso_tiempoRestante_menor;
 };
 
-const roundRobin = (procesos) => {
-    const procesosEspera = procesos.filter(proceso => proceso.estado === '🟡 Esperando');
+const roundRobin = (colaEspera) => {
+    const procesosEspera = Array.from(colaEspera);
     console.log(procesosEspera.map(proceso => proceso.nombre));
-
-    return null;
+    
+    return procesosEspera.length === 0 ? null : procesosEspera[0];
 };
 
 export const algoritmosPlanificacion = {

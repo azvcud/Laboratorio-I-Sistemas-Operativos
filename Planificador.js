@@ -17,7 +17,7 @@ export class Planificador {
     }
 
     ejecutarInstruccion(tick) {
-        let quantumActivado = this.algoritmoPlanificador === "roundRobin";
+        let quantumActivado = this.quantum > 0;
 
         this.procesos.forEach((proceso) => {
             proceso.señal(tick);
@@ -26,19 +26,34 @@ export class Planificador {
 
         if(quantumActivado)
         {
-            if(this.contadorQuantum === this.quantum + 1) { this.contadorQuantum = 0; }
-            if(this.contadorQuantum === 0) { console.log('🧊 Quantum'); }
             console.log(this.contadorQuantum);
-            this.contadorQuantum++; 
+            if(this.contadorQuantum === this.quantum + 1) { this.contadorQuantum = 0; }
+            if(this.colaEspera.size === 0 && this.procesoEjecucion === null) { this.contadorQuantum = 0; }
+            
+            console.log(this.contadorQuantum);
         }
 
         if(this.procesoEjecucion === null)
-        { 
-            let procesoEjecutar = this.algoritmoPlanificador(this.procesos);
+        {
+            let procesoEjecutar = null;
+
+            if (!(quantumActivado && this.contadorQuantum === 0))
+            { procesoEjecutar = this.algoritmoPlanificador(this.colaEspera); }            
 
             if(!(procesoEjecutar === null))
             { this.despacharProceso(procesoEjecutar); }
+        } 
+        else if (quantumActivado && this.contadorQuantum === 0)
+        {
+            this.procesoEjecucion.pausar();
+            this.encolarProceso(this.procesoEjecucion);
+            this.procesoEjecucion = null;
         }
+
+        if(this.contadorQuantum === 0) { console.log('🧊 Quantum'); }
+
+        this.contadorQuantum++; 
+        console.log(this.contadorQuantum);
 
         if(this.procesoEjecucion === null)  { console.log('🟢 Proceso en ejecución: ' ); }
         else                                { console.log('🟢 Proceso en ejecución: ' + this.procesoEjecucion.nombre); }
@@ -48,10 +63,10 @@ export class Planificador {
     }
 
     encolarProceso(proceso) {
-        if (proceso.estado === '🔴 Bloqueado' && !this.colaBloqueo.has(proceso)) { 
+        if (proceso.estado === '🔴 Bloqueado' && !this.colaBloqueo.has(proceso)) {             
             this.procesoEjecucion = null;
             this.colaBloqueo.add(proceso);
-            
+
             this.contadorQuantum = 0;
         }
         else if (!(proceso.estado === '🔴 Bloqueado') && this.colaBloqueo.has(proceso))
@@ -62,7 +77,9 @@ export class Planificador {
 
         if (proceso.estado === '✅ Finalizado' && !this.procesosTerminados.includes(proceso)) { 
             this.procesoEjecucion = null;
-            this.procesosTerminados.push(proceso); 
+            this.procesosTerminados.push(proceso);
+            
+            this.contadorQuantum = 0;
         }
     }
 

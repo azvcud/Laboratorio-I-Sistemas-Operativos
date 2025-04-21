@@ -48,6 +48,11 @@ export class Proceso {
         this.tiempoEjecutado++;
     }
 
+    pausar() {
+        this.estado = '🟡 Esperando';
+        this.tiempoEjecutado--;
+    }
+
     modificarProceso(comando) {
         switch(comando) {
             case 'Desbloquear':

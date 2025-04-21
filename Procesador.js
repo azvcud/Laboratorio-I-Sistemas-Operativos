@@ -8,7 +8,7 @@ const reloj = {
 };
 
 const bloqueoA = [
-    { empiezaEn: 3, duracion: 9 },
+    { empiezaEn: 2, duracion: 5 },
 ];
 
 const bloqueoB = [
@@ -43,20 +43,20 @@ const bloqueoG = [
 ];
 
 const procesos = [
-    new Proceso('A', 0, 8, bloqueoA),
+    new Proceso('A', 1, 10, bloqueoA),
     new Proceso('B', 2, 16, bloqueoB),
     new Proceso('C', 3, 12, bloqueoC),
     new Proceso('D', 5, 22, bloqueoD),
-    new Proceso('E', 13, 6, bloqueoE),
+    new Proceso('E', 12, 6, bloqueoE),
     new Proceso('F', 14, 15, bloqueoF),
     new Proceso('G', 18, 7, bloqueoG),
 ];
 //algoritmosPlanificacion.primeroEntrar_primeroSalir
 //algoritmosPlanificacion.trabajoMas_corto
 //algoritmosPlanificacion.tiempoRestante_masCorto
-const planificadorCPU = new Planificador(procesos, algoritmosPlanificacion.tiempoRestante_masCorto);
+const planificadorCPU = new Planificador(procesos, algoritmosPlanificacion.primeroEntrar_primeroSalir);
 planificadorCPU.iniciar();
-//planificadorCPU.setQuantum(3);
+planificadorCPU.setQuantum(3);
 
 let tick = { contador: 0 };
 async function gestionProcesos() { 
