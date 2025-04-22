@@ -7,6 +7,7 @@ export class Planificador {
         this.procesoEjecucion = null;
         this.quantum = 0;
         this.contadorQuantum = 0;
+        this.tiempoPlanificacion = 0;
         this.algoritmoPlanificador = algoritmoPlanificador;
     }
 
@@ -21,7 +22,7 @@ export class Planificador {
 
         this.procesos.forEach((proceso) => {
             proceso.señal(tick);
-            this.encolarProceso(proceso);
+            this.encolarProceso(proceso, tick);
         });
 
         if(quantumActivado)
@@ -47,11 +48,11 @@ export class Planificador {
             this.procesoEjecucion = null;
         }
 
-        this.visualizarDatosConsola();
-        this.contadorQuantum++; 
+        if(quantumActivado) { this.contadorQuantum++; }
+        if(this.contadorQuantum === 1) { this.tiempoPlanificacion++; }
     }
 
-    encolarProceso(proceso) {
+    encolarProceso(proceso, tick) {
         if (proceso.estado === '🔴 Bloqueado' && !this.colaBloqueo.has(proceso)) {             
             this.procesoEjecucion = null;
             this.colaBloqueo.add(proceso);
@@ -66,6 +67,7 @@ export class Planificador {
 
         if (proceso.estado === '✅ Finalizado' && !this.procesosTerminados.includes(proceso)) { 
             this.procesoEjecucion = null;
+            proceso.setInstanteFinalizacion(tick);
             this.procesosTerminados.push(proceso);
             
             this.contadorQuantum = 0;
@@ -89,12 +91,17 @@ export class Planificador {
         { console.log('El planificador no tiene asignado el algoritmo Round Robin'); }
     }
 
-    visualizarDatosConsola() {
-        if(this.contadorQuantum === 0) { console.log('🧊 Quantum'); }
-        if(this.procesoEjecucion === null)  { console.log('🟢 Proceso en ejecución: ' ); }
-        else                                { console.log('🟢 Proceso en ejecución: ' + this.procesoEjecucion.nombre); }
-        console.log('🔴 Cola de bloqueo: '); console.log(new Set([...this.colaBloqueo].map(proceso => proceso.nombre)));
-        console.log('🟡 Cola de espera: '); console.log(new Set([...this.colaEspera].map(proceso => proceso.nombre)));
-        console.log('✅ Procesos finalizados: '); console.log(this.procesosTerminados.map(proceso => proceso.nombre));
+    getTiempoPlanificacion() {
+        return this.tiempoPlanificacion;
+    }
+
+    visualizarDatosConsola(interfaz) {
+        interfaz('');
+        if(this.contadorQuantum === 1) { interfaz('🧊 Quantum'); }
+        if(this.procesoEjecucion === null)  { interfaz('🟢 Proceso en ejecución: ' ); }
+        else                                { interfaz('🟢 Proceso en ejecución: ' + this.procesoEjecucion.nombre); }
+        interfaz('🔴 Cola de bloqueo: ');       interfaz(new Set([...this.colaBloqueo].map(proceso => proceso.nombre)));
+        interfaz('🟡 Cola de espera: ');        interfaz(new Set([...this.colaEspera].map(proceso => proceso.nombre)));
+        interfaz('✅ Procesos finalizados: ');  interfaz(this.procesosTerminados.map(proceso => proceso.nombre));
     }
 }

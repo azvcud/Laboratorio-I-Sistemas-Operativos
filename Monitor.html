@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>4 Web Terminals</title>
+  <link rel="stylesheet" href="UI.css">
+</head>
+<body>
+    <div class="grid-container">
+        <div class="terminal-wrapper">
+            <!-- COLUMNA IZQUIERDA: terminal + bottom panel -->
+            <div class="left-column">
+              <div class="terminal">
+                <div class="terminal-header">
+                  <span class="dot red"></span>
+                  <span class="dot yellow"></span>
+                  <span class="dot green"></span>
+                  <span class="terminal-title">Terminal 1</span>
+                </div>
+                <div class="terminal-body" id="terminal1"></div>
+              </div>
+              <div class="bottom-panel">
+                <p>Lista de procesos:</p>
+                <table class="log-table" id="tablaProcesos">
+                  <thead>
+                    <tr>
+                      <th>Nombre de Proceso</th>
+                      <th>Inicio</th>
+                      <th>Duración</th>
+                      <th>Bloqueo Asignado</th>
+                    </tr>
+                  </thead>
+                </table>
+                <button id="agregarProceso">Agregar proceso</button>
+              
+                <p>Lista de bloqueos:</p>
+                <table class="log-table" id="tablaBloqueos">
+                  <thead>
+                    <tr>
+                      <th>Empieza en</th>
+                      <th>Duración</th>
+                      <th>Asignado al proceso</th>
+                    </tr>
+                  </thead>
+                </table>
+                <button id="agregarBloqueo">Agregar bloqueo</button>
+              </div>              
+            </div>
+          
+            <!-- COLUMNA DERECHA: data panels -->
+            <div class="right-column">
+              <div class="data-panel">
+                <!-- Primer bloque de inputs -->
+                <button id="ejecutar">Ejecutar</button>
+                <div class="input-group">
+                  <label for="selector1">Procesos:</label>
+                  <select id="selector1">...</select>
+                  <label for="valor1_1">Inicio:</label>
+                  <input type="text" id="valor1_1" />
+                  <label for="valor1_2">Duración:</label>
+                  <input type="text" id="valor1_2" />
+                  <button id="ejecutar">Actualizar</button>
+                </div>
+                <div class="input-group">
+                  <label for="selector2">Bloqueos:</label>
+                  <select id="selector2">...</select>
+                  <label for="valor2_1">Empieza en:</label>
+                  <input type="text" id="valor2_1" />
+                  <label for="valor2_2">Duración:</label>
+                  <input type="text" id="valor2_2" />
+                  <button id="ejecutar">Actualizar</button>
+                </div>
+                <div class="info">
+                  <p>Datos importantes aparecerán aquí.</p>
+                </div>
+              </div>
+          
+              <div class="data-panel">
+                <div class="input-group">
+                  <label for="tiempociclo">Tiempo entre ciclos:</label>
+                  <input type="text" id="tiempociclo" />
+                  <label for="algoritmoPlanificacion">Algoritmo de planificación:</label>
+                  <select id="algoritmoPlanificacion">
+                    <option value="FCFS">Primero en entrar, primero en salir</option>
+                    <option value="SFJ">Trabajo más corto</option>
+                    <option value="SRFJ">Tiempo restante más corto</option>
+                    <option value="RR">Round Robin</option>
+                   </select>
+                  <label for="quantum">Quantum:</label>
+                  <input type="text" id="quantum" disabled />
+                </div>
+              </div>
+            </div>
+          </div>              
+    </div>
+  <script type="module" src="EntradaSalida.js"></script>
+</body>
+</html>

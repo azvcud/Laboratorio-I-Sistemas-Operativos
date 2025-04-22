@@ -34,9 +34,7 @@ const tiempoRestante_masCorto = (colaEspera) => {
 };
 
 const roundRobin = (colaEspera) => {
-    const procesosEspera = Array.from(colaEspera);
-    console.log(procesosEspera.map(proceso => proceso.nombre));
-    
+    const procesosEspera = Array.from(colaEspera);    
     return procesosEspera.length === 0 ? null : procesosEspera[0];
 };
 
