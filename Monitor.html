@@ -45,7 +45,13 @@
                   </thead>
                 </table>
                 <button id="agregarBloqueo">Agregar bloqueo</button>
-              </div>              
+              </div>
+              
+              <div class="table-panel">       
+                <p>Tabla de procesos: </p> 
+                <button id="crearTabla">Crear tabla</button>
+                <div id="contenedorTabla" class="tabla-scroll"></div>   
+              </div>
             </div>
           
             <!-- COLUMNA DERECHA: data panels -->
@@ -53,26 +59,8 @@
               <div class="data-panel">
                 <!-- Primer bloque de inputs -->
                 <button id="ejecutar">Ejecutar</button>
-                <div class="input-group">
-                  <label for="selector1">Procesos:</label>
-                  <select id="selector1">...</select>
-                  <label for="valor1_1">Inicio:</label>
-                  <input type="text" id="valor1_1" />
-                  <label for="valor1_2">Duración:</label>
-                  <input type="text" id="valor1_2" />
-                  <button id="ejecutar">Actualizar</button>
-                </div>
-                <div class="input-group">
-                  <label for="selector2">Bloqueos:</label>
-                  <select id="selector2">...</select>
-                  <label for="valor2_1">Empieza en:</label>
-                  <input type="text" id="valor2_1" />
-                  <label for="valor2_2">Duración:</label>
-                  <input type="text" id="valor2_2" />
-                  <button id="ejecutar">Actualizar</button>
-                </div>
                 <div class="info">
-                  <p>Datos importantes aparecerán aquí.</p>
+                  <p>Aplicativo de Planificación de procesos.</p>
                 </div>
               </div>
           

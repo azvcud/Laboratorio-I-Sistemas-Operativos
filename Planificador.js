@@ -95,6 +95,17 @@ export class Planificador {
         return this.tiempoPlanificacion;
     }
 
+    getCicloActual() {
+        const estadoProcesos = this.procesos.map(proceso => proceso.estado);
+        
+        if(this.contadorQuantum === 1)
+        { estadoProcesos.push('🧊 Quantum'); }
+        else if(this.quantum > 0)
+        { estadoProcesos.push('No quantum :('); }
+        
+        return estadoProcesos;
+    }
+
     visualizarDatosConsola(interfaz) {
         interfaz('');
         if(this.contadorQuantum === 1) { interfaz('🧊 Quantum'); }

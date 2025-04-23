@@ -91,13 +91,17 @@ export function configurarAlgoritmoProcesos(algoritmoPlanificacion, quantum) {
     planificadorCPU.iniciar();
 }
 
-export async function gestionProcesos(interfaz, tiempoCiclos) { 
+export async function gestionProcesos(interfaz, actualizarGrafica, tiempoCiclos) { 
     while(!planificadorCPU.terminacion()) {
         await reloj.tiempo(tiempoCiclos);
         interfaz('');
         interfaz('Ciclo no. ' + (tick.contador + 1) + ' entre tick ' + tick.contador + ' y ' + (tick.contador + 1));
         planificadorCPU.ejecutarInstruccion(tick.contador);
         planificadorCPU.visualizarDatosConsola(interfaz);
+
+        const estadosActuales = planificadorCPU.getCicloActual();
+        actualizarGrafica(estadosActuales, estadosActuales.length);
+
         reloj.ciclo(tick);
     }
 
