@@ -8,7 +8,7 @@ const reloj = {
 };
 
 const bloqueoA = [
-    { empiezaEn: 3, duracion: 9 },
+    { empiezaEn: 3, duracion: 9 }
 ];
 
 const bloqueoB = [

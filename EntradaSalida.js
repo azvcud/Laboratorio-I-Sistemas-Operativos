@@ -4,7 +4,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const bt_iniciar            = document.getElementById('ejecutar');
     const bt_agregarProceso     = document.getElementById('agregarProceso');
     const bt_agregarBloqueo     = document.getElementById('agregarBloqueo');
-    const bt_crearTabla         = document.getElementById('crearTabla');
+    const bt_actualizarProcesos = document.getElementById('actualizarProcesos');
+    const bt_actualizarBloqueos = document.getElementById('actualizarBloqueos');
+    const bt_eliminarProceso    = document.getElementById('eliminarProceso');
+    const bt_eliminarBloqueo    = document.getElementById('eliminarBloqueo');
     const div_terminal          = document.getElementById('terminal1');
     const div_contenedorTabla   = document.getElementById('contenedorTabla');
     const ip_tiempoCiclos       = document.getElementById('tiempociclo');
@@ -52,8 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function actualizarGrafica(tablaProcesos, estadosProcesos, filas, nombreProcesos) {
         const fragmentoCiclo    = document.createDocumentFragment();
-
-        console.log(nombreProcesos);
 
         contador++;
         coloresGrafica.push(estadosProcesos);
@@ -130,51 +131,98 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-
+    let procesosEnTabla = 0;
+    let nombresEnTabla  = 0;
     const agregarProceso = (table_procesos) => {
         const fila = document.createElement("tr");
 
         fila.innerHTML = `
-        <tbody>
-            <td>ARP</td>
-            <td>ISP</td>
-            <td>EIGRP</td>
-            <td>STP</td>
-        </tbody>
+            <td id="nombreProceso${nombresEnTabla}" contenteditable="true">Proceso Z</td>
+            <td contenteditable="true">1</td>
+            <td contenteditable="true">10</td>
+            <td><select id="bloqueoAsignar${procesosEnTabla}">
+            </select></td>
         `;
 
+        procesosEnTabla++;
+        nombresEnTabla++;
         table_procesos.appendChild(fila);
     };
 
+    let bloqueosEnTabla = 0;
     const agregarBloqueo = (table_bloqueos) => {
-        const fila = document.createElement("tr");
+        const fila   = document.createElement("tr"); 
 
         fila.innerHTML = `
         <tbody>
-            <td>ARP</td>
-            <td>ISP</td>
-            <td>EIGRP</td>
+            <td contenteditable="true">5</td>
+            <td contenteditable="true">6</td>
+            <td id="procesoAsignado${bloqueosEnTabla}"></td>
         </tbody>
         `;
 
+        bloqueosEnTabla++;
         table_bloqueos.appendChild(fila);
     };
 
-    const crearTabla = (filas, columnas, div_contenedorTabla) => {
-        div_contenedorTabla.innerHTML = "";
+    const actualizarProcesos = (table_bloqueos) => {
+        const totalFilasBloqueo = table_bloqueos.querySelectorAll('tr').length - 1;
+        console.log(totalFilasBloqueo);
+        console.log(procesosEnTabla);
 
-        const tabla = document.createElement("table");
+        for(let i = 0; i < procesosEnTabla; i++) {
+            const selector = document.getElementById(`bloqueoAsignar${i}`);
+            selector.innerHTML = '';
 
-        for(let i = 0; i < filas; i++) {
-            const fila = document.createElement("tr");
-            for(let j = 0; j < columnas; j++) {
-                const celdaCiclo = document.createElement("td");
-                fila.appendChild(celdaCiclo);
+            console.log(selector);
+
+            for(let j = 0; j < totalFilasBloqueo; j++) {
+                selector.innerHTML += `<option value="nuevo">Bloqueo ${j + 1}</option>`;
             }
-            tabla.appendChild(fila); 
+            selector.innerHTML += `<option value="nuevo">Ninguno</option>`
+        }
+    };
+
+    const actualizarBloqueos = (table_procesos) => {
+        const totalFilasProceso = table_procesos.querySelectorAll('tr').length - 1; 
+
+        for(let i = 0; i < bloqueosEnTabla; i++) {
+            const td_asignacion = document.getElementById(`procesoAsignado${i}`);
+            td_asignacion.textContent = '';
+
+            for(let j = 0; j < totalFilasProceso; j++) {
+                const selector      = document.getElementById(`bloqueoAsignar${j}`);
+                const nombreProceso = document.getElementById(`nombreProceso${j}`);                
+                const textoSelector = selector.options[selector.selectedIndex].text;
+                const numeroBloqueo = textoSelector.match(/\d+/)?.[0] || null;
+
+                if(i == (numeroBloqueo - 1) && !(numeroBloqueo === null))
+                { td_asignacion.textContent += nombreProceso.textContent + ' '; }
+            }
+        }
+    };
+
+    const eliminarProceso = (table_procesos) => {
+        const filas = table_procesos.getElementsByTagName('tr');
+
+        if (filas.length > 1) { //1 por la cabecera de la tabla
+            const ultimaFila = filas[filas.length - 1];
+            ultimaFila.remove();
         }
 
-        div_contenedorTabla.appendChild(tabla);
+        procesosEnTabla--;
+        nombresEnTabla--;
+    }
+
+    const eliminarBloqueo = (table_bloqueos) => {
+        const filas = table_bloqueos.getElementsByTagName('tr');
+
+        if (filas.length > 1) { //1 por la cabecera de la tabla
+            const ultimaFila = filas[filas.length - 1];
+            ultimaFila.remove();
+        }
+
+        bloqueosEnTabla--;
     }
 
     /*-----------------------------------------------------------------------*/
@@ -186,8 +234,11 @@ document.addEventListener("DOMContentLoaded", function () {
         div_contenedorTabla
     ));
 
-    bt_agregarProceso.addEventListener('click', () => agregarProceso(table_procesos));
-    bt_agregarBloqueo.addEventListener('click', () => agregarBloqueo(table_bloqueos));
-    bt_crearTabla.addEventListener('click', () => crearTabla(7, 124, div_contenedorTabla));
+    bt_agregarProceso.addEventListener('click', () => agregarProceso(table_procesos, table_bloqueos));
+    bt_agregarBloqueo.addEventListener('click', () => agregarBloqueo(table_bloqueos, table_procesos));
+    bt_actualizarProcesos.addEventListener('click', () => actualizarProcesos(table_bloqueos));
+    bt_actualizarBloqueos.addEventListener('click', () => actualizarBloqueos(table_procesos));
+    bt_eliminarProceso.addEventListener('click', () => eliminarProceso(table_procesos));
+    bt_eliminarBloqueo.addEventListener('click', () => eliminarBloqueo(table_bloqueos));
     sel_algPlanificacion.addEventListener('change', () => autorizacionCampo_quantum(sel_algPlanificacion, ip_quantum));
 });

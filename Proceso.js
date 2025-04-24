@@ -28,13 +28,16 @@ export class Proceso {
         if (this.tiempoTranscurrido === this.tiempoInicio) 
         { this.estado = '🟡 Esperando'; }
 
-        if(this.bloqueos[this.cabeceraBloqueo].duracion === this.tiempo_enBloqueo && !this.bloqueosFinalizados) {
-            this.modificarProceso('Desbloquear');
-            this.estado = '🟡 Esperando'; 
+        if(this.bloqueos.length > 0)
+        {
+            if(this.bloqueos[this.cabeceraBloqueo].duracion === this.tiempo_enBloqueo && !this.bloqueosFinalizados) {
+                this.modificarProceso('Desbloquear');
+                this.estado = '🟡 Esperando'; 
+            }
+    
+            if(this.bloqueos[this.cabeceraBloqueo].empiezaEn === this.tiempoEjecutado && !this.bloqueosFinalizados) 
+            { this.estado = '🔴 Bloqueado'; }
         }
-
-        if(this.bloqueos[this.cabeceraBloqueo].empiezaEn === this.tiempoEjecutado && !this.bloqueosFinalizados) 
-        { this.estado = '🔴 Bloqueado'; }
 
         if(this.tiempoEjecutado === this.duracion)
         { this.estado = '✅ Finalizado'; } 
