@@ -50,39 +50,54 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    function actualizarGrafica(tablaProcesos, estadosProcesos, filas) {
-        const fragmento = document.createDocumentFragment();
+    function actualizarGrafica(tablaProcesos, estadosProcesos, filas, nombreProcesos) {
+        const fragmentoCiclo    = document.createDocumentFragment();
+
+        console.log(nombreProcesos);
 
         contador++;
         coloresGrafica.push(estadosProcesos);
     
         for(let i = 0; i <= filas; i++) {
             const fila = document.createElement("tr");
-            
+
             for(let j = 0; j < contador; j++) {
-                const celda = document.createElement("td");
+                const celdaCiclo    = document.createElement("td");
+            
                 if(i == filas)
                 {
-                    celda.style.backgroundColor = "white";
-                    celda.style.color = "black";
-                    celda.textContent = j + 1;
-                    celda.style.fontWeight = "bold";
+                    celdaCiclo.style.backgroundColor = "white";
+                    celdaCiclo.style.color = "black";
+                    celdaCiclo.textContent = j + 1;
+                    celdaCiclo.style.fontWeight = "bold";
                 }
                 else
-                { celda.style.backgroundColor = criterioColor(coloresGrafica[j][i]); }
-                fila.appendChild(celda);
+                { celdaCiclo.style.backgroundColor = criterioColor(coloresGrafica[j][i]); }
+                
+                if(j === 0) {
+                    const celdaNombre   = document.createElement("td");
+
+                    celdaNombre.style.backgroundColor = "yellow";
+                    celdaNombre.style.color = "black";
+                    celdaNombre.textContent = nombreProcesos[i];
+                    celdaNombre.style.fontWeight = "bold";
+
+                    fila.appendChild(celdaNombre);
+                }
+
+                fila.appendChild(celdaCiclo);
             }
-            fragmento.appendChild(fila);
+            fragmentoCiclo.appendChild(fila);
         }
 
         tablaProcesos.innerHTML = "";
-        tablaProcesos.appendChild(fragmento);
-        window.scrollTo({left: document.body.scrollWidth});
+        tablaProcesos.appendChild(fragmentoCiclo);
+      window.scrollTo({left: document.body.scrollWidth});
     }
 
     function actualizarGrafica_curry(tablaProcesos) {
-        return function(estadosProcesos, filas) {
-            actualizarGrafica(tablaProcesos, estadosProcesos, filas);
+        return function(estadosProcesos, filas, nombreProcesos) {
+            actualizarGrafica(tablaProcesos, estadosProcesos, filas, nombreProcesos);
         };
     }
 
@@ -153,8 +168,8 @@ document.addEventListener("DOMContentLoaded", function () {
         for(let i = 0; i < filas; i++) {
             const fila = document.createElement("tr");
             for(let j = 0; j < columnas; j++) {
-                const celda = document.createElement("td");
-                fila.appendChild(celda);
+                const celdaCiclo = document.createElement("td");
+                fila.appendChild(celdaCiclo);
             }
             tabla.appendChild(fila); 
         }

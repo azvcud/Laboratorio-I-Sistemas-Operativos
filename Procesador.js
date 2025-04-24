@@ -43,13 +43,13 @@ const bloqueoG = [
 ];
 
 const procesos = [
-    new Proceso('A', 0, 8, bloqueoA),
-    new Proceso('B', 2, 16, bloqueoB),
-    new Proceso('C', 3, 12, bloqueoC),
-    new Proceso('D', 5, 22, bloqueoD),
-    new Proceso('E', 13, 6, bloqueoE),
-    new Proceso('F', 14, 15, bloqueoF),
-    new Proceso('G', 18, 7, bloqueoG),
+    new Proceso('LibreWolf', 0, 8, bloqueoA),
+    new Proceso('Antimalware Service Executable', 2, 16, bloqueoB),
+    new Proceso('GitHub Desktop', 3, 12, bloqueoC),
+    new Proceso('Visual Studio Code', 5, 22, bloqueoD),
+    new Proceso('Explorador de Windows', 13, 6, bloqueoE),
+    new Proceso('Microsoft Excel', 14, 15, bloqueoF),
+    new Proceso('NVIDIA Container', 18, 7, bloqueoG),
 ];
 
 const procesos2 = [];
@@ -100,7 +100,10 @@ export async function gestionProcesos(interfaz, actualizarGrafica, tiempoCiclos)
         planificadorCPU.visualizarDatosConsola(interfaz);
 
         const estadosActuales = planificadorCPU.getCicloActual();
-        actualizarGrafica(estadosActuales, estadosActuales.length);
+        const nombresProcesos = planificadorCPU.getNombreProcesos();
+
+        nombresProcesos.push('');
+        actualizarGrafica(estadosActuales, estadosActuales.length, nombresProcesos);
 
         reloj.ciclo(tick);
     }

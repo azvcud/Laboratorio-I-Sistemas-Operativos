@@ -98,12 +98,21 @@ export class Planificador {
     getCicloActual() {
         const estadoProcesos = this.procesos.map(proceso => proceso.estado);
         
-        if(this.contadorQuantum === 1)
+        if(this.contadorQuantum === 1 && !this.terminacion())
         { estadoProcesos.push('🧊 Quantum'); }
         else if(this.quantum > 0)
         { estadoProcesos.push('No quantum :('); }
         
         return estadoProcesos;
+    }
+
+    getNombreProcesos() {
+        const nombreProcesos = this.procesos.map(proceso => proceso.nombre);
+
+        if(this.quantum > 0)
+        { nombreProcesos.push('Planificador'); }
+
+        return nombreProcesos;
     }
 
     visualizarDatosConsola(interfaz) {

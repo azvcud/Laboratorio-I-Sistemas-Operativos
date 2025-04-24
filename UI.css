@@ -245,9 +245,8 @@ body {
   }
 
   td {
-      border: 1px solid #999;
-      width: 10mm;
-      height: 6mm;
+      border: 1px solid rgb(255, 255, 255, 0.15);
+      height: 5mm;
       text-align: center;
       vertical-align: middle;
       cursor: pointer;
