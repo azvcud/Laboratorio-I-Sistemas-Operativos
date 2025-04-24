@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const sel_algPlanificacion  = document.getElementById('algoritmoPlanificacion');
     const table_procesos        = document.getElementById('tablaProcesos');
     const table_bloqueos        = document.getElementById('tablaBloqueos');
+    const table_estadisticas    = document.getElementById('tablaEstadisticas');
     /*----------------------------------------------------------------------*/
     function interfazWeb(message) {
         const output = div_terminal;
@@ -98,12 +99,41 @@ document.addEventListener("DOMContentLoaded", function () {
     function limpiarGrafica() {
         contadorGrafica = 0;
         coloresGrafica = [];
+
+    }
+
+    function graficarTabla(table_estadisticas, tablaEstadisticas) {
+        const tbody            = table_estadisticas.querySelector('tbody');
+        const tablaTranspuesta = tablaEstadisticas[0].map((_, colIndex) =>
+            tablaEstadisticas.map(row => {
+              const valor = row[colIndex];
+              return typeof valor === 'number' ? Number(valor.toFixed(10)) : valor;
+            })
+          );
+
+        tablaTranspuesta.forEach(fila => {
+            const tr = document.createElement('tr');
+
+            fila.forEach(celda => {
+                const td = document.createElement('td'); 
+                td.textContent = celda; 
+                tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+        });
     }
 
     function actualizarGrafica_curry(tablaProcesos) {
         return function(estadosProcesos, filas, nombreProcesos) {
             actualizarGrafica(tablaProcesos, estadosProcesos, filas, nombreProcesos);
         };
+    }
+
+    function graficarTabla_curry(table_estadisticas) {
+        return function(tablaEstadisticas) {
+            graficarTabla(table_estadisticas, tablaEstadisticas);
+        }
     }
 
     const extraerProcesos = (table_procesos) => {
@@ -147,13 +177,16 @@ document.addEventListener("DOMContentLoaded", function () {
         div_contenedorTabla,
         div_terminal,
         table_procesos,
-        table_bloqueos
+        table_bloqueos,
+        table_estadisticas
     ) => {
 
         const tiempoCiclos              = parseInt(ip_tiempoCiclos.value, 10);
         const algoritmoPlanificacion    = sel_algPlanificacion.value;
         const tablaProcesos             = document.createElement("table");
+        const tbody                     = table_estadisticas.querySelector('tbody');
 
+        tbody.innerHTML = '';
         div_terminal.innerHTML = '';
         div_contenedorTabla.innerHTML = '';
         div_contenedorTabla.appendChild(tablaProcesos);
@@ -172,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         configurarAlgoritmoProcesos(procesosInterfaz, algoritmoPlanificacion, quantum);
-        gestionProcesos(interfaz, actualizarGrafica_curry(tablaProcesos), tiempoCiclos);
+        gestionProcesos(interfaz, actualizarGrafica_curry(tablaProcesos), tiempoCiclos, graficarTabla_curry(table_estadisticas));
     };
 
 
@@ -266,6 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
         div_terminal,
         table_procesos,
         table_bloqueos,
+        table_estadisticas,
     ));
 
     bt_agregarProceso.addEventListener('click', () => agregarProceso(table_procesos, table_bloqueos));

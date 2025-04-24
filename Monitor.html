@@ -50,9 +50,30 @@
               </div>
               
               <div class="table-panel">       
-                <p>Tabla de procesos: </p> 
+                <p>Tabla de procesos: </p>
                 <div id="contenedorTabla" class="tabla-scroll"></div>   
               </div>
+
+              <div class="bottom-panel">
+                <p>Tabla de estadísticas:</p>
+                <table class="log-table" id="tablaEstadisticas">
+                  <thead>
+                    <tr>
+                      <th>Proceso</th>
+                      <th>Ejecución (t)</th>
+                      <th>Tiempo respuesta (Tr)</th>
+                      <th>Espera</th>
+                      <th>Bloqueo</th>
+                      <th>Instante fin (If)</th>
+                      <th>Retorno (If-li)</th>
+                      <th>Tiempo perdido (T-t)</th>
+                      <th>Penalidad (Ip = T/t)</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
             </div>
           
             <!-- COLUMNA DERECHA: data panels -->

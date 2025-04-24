@@ -51,11 +51,10 @@ export function configurarProcesosYBloqueos(procesos, bloqueos) {
         new Proceso(nombre, prioridad, tiempo, listaBloqueos[i])
     );
 
-    console.log(instancias);
     return instancias;
 }
 
-export async function gestionProcesos(interfaz, actualizarGrafica, tiempoCiclos) { 
+export async function gestionProcesos(interfaz, actualizarGrafica, tiempoCiclos, graficarTabla) { 
     while(!planificadorCPU.terminacion()) {
         await reloj.tiempo(tiempoCiclos);
         interfaz('');
@@ -74,10 +73,13 @@ export async function gestionProcesos(interfaz, actualizarGrafica, tiempoCiclos)
 
     let tiempoPlanificando      = planificadorCPU.getTiempoPlanificacion();
     let procesosPlanificador    = planificadorCPU.getProcesos();
-    imprimirEstadisticas(procesosPlanificador, interfaz, tiempoPlanificando);
+    let tablaEstadisticas       = imprimirEstadisticasProcesos(procesosPlanificador);
+
+    imprimirEstadisticasGenerales(procesosPlanificador, interfaz, tiempoPlanificando);
+    graficarTabla(tablaEstadisticas);
 }
 
-function imprimirEstadisticas(procesos, interfaz, tiempoPlanificando) {
+function imprimirEstadisticasGenerales(procesos, interfaz, tiempoPlanificando) {
     let tiempoCPU_encendida = tick.contador - 1;
     let numeroProcesos      = procesos.length;
     let usoTotal_CPU        = procesos.reduce((suma, proceso) => suma + proceso.duracion, 0);
@@ -104,4 +106,31 @@ function imprimirEstadisticas(procesos, interfaz, tiempoPlanificando) {
 
     if(roundRobin_activado)
     {  interfaz('📅CPU en planificación: ' + tiempoPlanificando); }
+}
+
+function imprimirEstadisticasProcesos(procesos) {
+    let c1_nombresProcesos          = procesos.map(proceso => proceso.nombre);
+    let c2_ejecucionProcesos        = procesos.map(proceso => proceso.duracion);
+    let c3_tiempoRespuestaProcesos  = procesos.map(proceso => proceso.tiempoEsperaInicial);
+    let c4_esperaProcesos           = procesos.map(proceso => proceso.tiempoEsperado);
+    let c6_instanteFinProcesos      = procesos.map(proceso => proceso.instanteFinalizacion);
+    let c7_retornoProcesos          = procesos.map(proceso => (proceso.instanteFinalizacion - proceso.tiempoInicio));
+    let c8_tiempoPerdidoProcesos    = procesos.map(proceso => (proceso.instanteFinalizacion - proceso.tiempoInicio) - proceso.duracion);
+    let c9_penalidad                = procesos.map(proceso => (proceso.instanteFinalizacion - proceso.tiempoInicio) / proceso.duracion);
+
+    let c5_bloqueoProcesos = procesos.map(proceso => {
+        return proceso.bloqueos.reduce((total, bloqueo) => total + bloqueo.duracion, 0);
+    });
+
+    return [
+        c1_nombresProcesos, 
+        c2_ejecucionProcesos,
+        c3_tiempoRespuestaProcesos,
+        c4_esperaProcesos,
+        c5_bloqueoProcesos,
+        c6_instanteFinProcesos,
+        c7_retornoProcesos,
+        c8_tiempoPerdidoProcesos,
+        c9_penalidad
+    ]
 }

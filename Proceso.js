@@ -11,6 +11,8 @@ export class Proceso {
         this.tiempo_enBloqueo = 0;
         this.cabeceraBloqueo = 0;
         this.instanteFinalizacion = 0;
+        this.tiempoEsperaInicial = 0;
+        this.estadoEsperaInicial = false;
         this.bloqueosFinalizados = false;
     }
   
@@ -47,6 +49,8 @@ export class Proceso {
         if (this.estado === '🔴 Bloqueado' ) { this.tiempo_enBloqueo++; }
         if (this.estado === '🟢 Ejecutando') { this.tiempoEjecutado++; }
         if (this.estado === '🟡 Esperando')  { this.tiempoEsperado++; }
+        if (!this.estadoEsperaInicial && this.estado != '🔵 Iniciando')        
+        { this.tiempoEsperaInicial++; }
     }
 
     aumentarEspera() {
@@ -57,6 +61,8 @@ export class Proceso {
         this.estado = '🟢 Ejecutando';
         this.tiempoEjecutado++;
         this.tiempoEsperado--;
+        
+        if(!this.estadoEsperaInicial) { this.tiempoEsperaInicial--; } 
     }
 
     pausar() {
@@ -67,6 +73,10 @@ export class Proceso {
 
     setInstanteFinalizacion(instanteFinalizacion) {
         this.instanteFinalizacion = instanteFinalizacion;
+    }
+
+    setEstadoEsperaInicial(estadoEsperaInicial) {
+        this.estadoEsperaInicial = estadoEsperaInicial;
     }
 
     modificarProceso(comando) {

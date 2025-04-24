@@ -18,12 +18,12 @@ export class Planificador {
     }
 
     ejecutarInstruccion(tick) {
-        let quantumActivado = this.quantum > 0;
-
         this.procesos.forEach((proceso) => {
             proceso.señal(tick);
             this.encolarProceso(proceso, tick);
         });
+
+        let quantumActivado = (this.quantum > 0) && (this.verificarProcesosExistentes());
 
         if(quantumActivado)
         {
@@ -76,12 +76,17 @@ export class Planificador {
 
     despacharProceso(proceso) {
         proceso.ejecutar();
+        proceso.setEstadoEsperaInicial(true);
         this.colaEspera.delete(proceso);
         this.procesoEjecucion = proceso;
     }
 
     terminacion() {
         return this.procesos.every(proceso => proceso.estado === '✅ Finalizado');
+    }
+
+    verificarProcesosExistentes() {
+        return (this.colaEspera.size > 0 || this.colaBloqueo > 0 || this.procesoEjecucion != null)
     }
 
     setQuantum(quantum) {
