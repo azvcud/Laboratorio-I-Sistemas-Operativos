@@ -1,10 +1,9 @@
-import { gestionProcesos, configurarAlgoritmoProcesos } from "./Procesador.js";
+import { gestionProcesos, configurarAlgoritmoProcesos, configurarProcesosYBloqueos } from "./Procesador.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     const bt_iniciar            = document.getElementById('ejecutar');
     const bt_agregarProceso     = document.getElementById('agregarProceso');
     const bt_agregarBloqueo     = document.getElementById('agregarBloqueo');
-    const bt_actualizarProcesos = document.getElementById('actualizarProcesos');
     const bt_actualizarBloqueos = document.getElementById('actualizarBloqueos');
     const bt_eliminarProceso    = document.getElementById('eliminarProceso');
     const bt_eliminarBloqueo    = document.getElementById('eliminarBloqueo');
@@ -40,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
         output.scrollTop = output.scrollHeight;
     };
 
-    let contador = 0;
+    let contadorGrafica = 0;
     let coloresGrafica = [];
 
     const criterioColor = (estadoProceso) => {
@@ -56,13 +55,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function actualizarGrafica(tablaProcesos, estadosProcesos, filas, nombreProcesos) {
         const fragmentoCiclo    = document.createDocumentFragment();
 
-        contador++;
+        contadorGrafica++;
         coloresGrafica.push(estadosProcesos);
     
         for(let i = 0; i <= filas; i++) {
             const fila = document.createElement("tr");
 
-            for(let j = 0; j < contador; j++) {
+            for(let j = 0; j < contadorGrafica; j++) {
                 const celdaCiclo    = document.createElement("td");
             
                 if(i == filas)
@@ -96,18 +95,69 @@ document.addEventListener("DOMContentLoaded", function () {
       window.scrollTo({left: document.body.scrollWidth});
     }
 
+    function limpiarGrafica() {
+        contadorGrafica = 0;
+        coloresGrafica = [];
+    }
+
     function actualizarGrafica_curry(tablaProcesos) {
         return function(estadosProcesos, filas, nombreProcesos) {
             actualizarGrafica(tablaProcesos, estadosProcesos, filas, nombreProcesos);
         };
     }
 
+    const extraerProcesos = (table_procesos) => {
+        const filasProcesos = Array.from(table_procesos.querySelectorAll('tr')).slice(1);
+        const datosProcesos = [];
+
+        filasProcesos.forEach(fila => {
+            const celdas = fila.querySelectorAll('td');
+            const nombre = celdas[0].innerText.trim();
+            const inicio = parseInt(celdas[1].innerText.trim());
+            const duracion = parseInt(celdas[2].innerText.trim());
+
+            datosProcesos.push([nombre, inicio, duracion]);
+        });
+
+        return datosProcesos;
+    };
+
+    const extraerBloqueos = (table_bloqueos) => {
+        const filasBloqueos = Array.from(table_bloqueos.querySelectorAll('tr')).slice(1);
+        const datosBloqueos = [];
+
+        filasBloqueos.forEach(fila => {
+            const celdas = fila.querySelectorAll('td');
+            const inicio = parseInt(celdas[0].innerText.trim());
+            const duracion = parseInt(celdas[1].innerText.trim());
+            const textoProceso = celdas[2].querySelector('select')?.selectedOptions[0].text.trim();
+
+            datosBloqueos.push([inicio, duracion, textoProceso]);
+        });
+
+        return datosBloqueos;
+    }
+
     /*----------------------------------------------------------------------*/
-    const iniciarProcesador = (interfaz, ip_tiempoCiclos, sel_algPlanificacion, ip_quantum, div_contenedorTabla) => {
+    const iniciarProcesador = (
+        interfaz, 
+        ip_tiempoCiclos, 
+        sel_algPlanificacion, 
+        ip_quantum, 
+        div_contenedorTabla,
+        div_terminal,
+        table_procesos,
+        table_bloqueos
+    ) => {
+
         const tiempoCiclos              = parseInt(ip_tiempoCiclos.value, 10);
         const algoritmoPlanificacion    = sel_algPlanificacion.value;
         const tablaProcesos             = document.createElement("table");
+
+        div_terminal.innerHTML = '';
+        div_contenedorTabla.innerHTML = '';
         div_contenedorTabla.appendChild(tablaProcesos);
+        limpiarGrafica();
 
         if(sel_algPlanificacion.value != "RR")
         { quantum = 0; }
@@ -116,7 +166,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         interfaz(algoritmoPlanificacion);
         
-        configurarAlgoritmoProcesos(algoritmoPlanificacion, quantum);
+        const procesosInterfaz = configurarProcesosYBloqueos(
+            extraerProcesos(table_procesos), 
+            extraerBloqueos(table_bloqueos)
+        );
+
+        configurarAlgoritmoProcesos(procesosInterfaz, algoritmoPlanificacion, quantum);
         gestionProcesos(interfaz, actualizarGrafica_curry(tablaProcesos), tiempoCiclos);
     };
 
@@ -137,11 +192,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const fila = document.createElement("tr");
 
         fila.innerHTML = `
-            <td id="nombreProceso${nombresEnTabla}" contenteditable="true">Proceso Z</td>
+            <td id="nombreProceso${nombresEnTabla}" contenteditable="true">ProcesoZ</td>
             <td contenteditable="true">1</td>
             <td contenteditable="true">10</td>
-            <td><select id="bloqueoAsignar${procesosEnTabla}">
-            </select></td>
         `;
 
         procesosEnTabla++;
@@ -157,7 +210,8 @@ document.addEventListener("DOMContentLoaded", function () {
         <tbody>
             <td contenteditable="true">5</td>
             <td contenteditable="true">6</td>
-            <td id="procesoAsignado${bloqueosEnTabla}"></td>
+            <td><select id="procesoAsignar${bloqueosEnTabla}">
+            </select></td>
         </tbody>
         `;
 
@@ -165,39 +219,16 @@ document.addEventListener("DOMContentLoaded", function () {
         table_bloqueos.appendChild(fila);
     };
 
-    const actualizarProcesos = (table_bloqueos) => {
-        const totalFilasBloqueo = table_bloqueos.querySelectorAll('tr').length - 1;
-        console.log(totalFilasBloqueo);
-        console.log(procesosEnTabla);
+    const actualizarBloqueos = (table_bloqueos) => {
+        const totalFilasBloqueo = table_bloqueos.querySelectorAll('tr').length - 1; 
 
-        for(let i = 0; i < procesosEnTabla; i++) {
-            const selector = document.getElementById(`bloqueoAsignar${i}`);
-            selector.innerHTML = '';
+        for(let i = 0; i < totalFilasBloqueo; i++) {
+            const sel_proceso   = document.getElementById(`procesoAsignar${i}`);
+            sel_proceso.innerHTML = '';
 
-            console.log(selector);
-
-            for(let j = 0; j < totalFilasBloqueo; j++) {
-                selector.innerHTML += `<option value="nuevo">Bloqueo ${j + 1}</option>`;
-            }
-            selector.innerHTML += `<option value="nuevo">Ninguno</option>`
-        }
-    };
-
-    const actualizarBloqueos = (table_procesos) => {
-        const totalFilasProceso = table_procesos.querySelectorAll('tr').length - 1; 
-
-        for(let i = 0; i < bloqueosEnTabla; i++) {
-            const td_asignacion = document.getElementById(`procesoAsignado${i}`);
-            td_asignacion.textContent = '';
-
-            for(let j = 0; j < totalFilasProceso; j++) {
-                const selector      = document.getElementById(`bloqueoAsignar${j}`);
-                const nombreProceso = document.getElementById(`nombreProceso${j}`);                
-                const textoSelector = selector.options[selector.selectedIndex].text;
-                const numeroBloqueo = textoSelector.match(/\d+/)?.[0] || null;
-
-                if(i == (numeroBloqueo - 1) && !(numeroBloqueo === null))
-                { td_asignacion.textContent += nombreProceso.textContent + ' '; }
+            for(let j = 0; j < procesosEnTabla; j++) {
+                const nombreProceso = document.getElementById(`nombreProceso${j}`);
+                sel_proceso.innerHTML += `<option value="nuevo">${nombreProceso.textContent}</option>`;
             }
         }
     };
@@ -231,13 +262,15 @@ document.addEventListener("DOMContentLoaded", function () {
         ip_tiempoCiclos,
         sel_algPlanificacion,
         ip_quantum,
-        div_contenedorTabla
+        div_contenedorTabla,
+        div_terminal,
+        table_procesos,
+        table_bloqueos,
     ));
 
     bt_agregarProceso.addEventListener('click', () => agregarProceso(table_procesos, table_bloqueos));
     bt_agregarBloqueo.addEventListener('click', () => agregarBloqueo(table_bloqueos, table_procesos));
-    bt_actualizarProcesos.addEventListener('click', () => actualizarProcesos(table_bloqueos));
-    bt_actualizarBloqueos.addEventListener('click', () => actualizarBloqueos(table_procesos));
+    bt_actualizarBloqueos.addEventListener('click', () => actualizarBloqueos(table_bloqueos));
     bt_eliminarProceso.addEventListener('click', () => eliminarProceso(table_procesos));
     bt_eliminarBloqueo.addEventListener('click', () => eliminarBloqueo(table_bloqueos));
     sel_algPlanificacion.addEventListener('change', () => autorizacionCampo_quantum(sel_algPlanificacion, ip_quantum));

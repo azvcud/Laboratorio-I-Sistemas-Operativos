@@ -7,67 +7,13 @@ const reloj = {
     ciclo   : (tick) => tick.contador++
 };
 
-const bloqueoA = [
-    { empiezaEn: 3, duracion: 9 }
-];
-
-const bloqueoB = [
-    { empiezaEn: 4, duracion: 10 },
-    { empiezaEn: 11, duracion: 13 },
-];
-
-const bloqueoC = [
-    { empiezaEn: 7, duracion: 5 },
-    { empiezaEn: 11, duracion: 12 },
-];
-
-const bloqueoD = [
-    { empiezaEn: 9, duracion: 11 },
-    { empiezaEn: 12, duracion: 14 },
-    { empiezaEn: 20, duracion: 8 },
-];
-
-const bloqueoE = [
-    { empiezaEn: 2, duracion: 6 },
-    { empiezaEn: 4, duracion: 8 },
-];
-
-const bloqueoF = [
-    { empiezaEn: 3, duracion: 5 },
-    { empiezaEn: 8, duracion: 9 },
-    { empiezaEn: 13, duracion: 2 },
-]
-
-const bloqueoG = [
-    { empiezaEn: 4, duracion: 6 },
-];
-
-const procesos = [
-    new Proceso('LibreWolf', 0, 8, bloqueoA),
-    new Proceso('Antimalware Service Executable', 2, 16, bloqueoB),
-    new Proceso('GitHub Desktop', 3, 12, bloqueoC),
-    new Proceso('Visual Studio Code', 5, 22, bloqueoD),
-    new Proceso('Explorador de Windows', 13, 6, bloqueoE),
-    new Proceso('Microsoft Excel', 14, 15, bloqueoF),
-    new Proceso('NVIDIA Container', 18, 7, bloqueoG),
-];
-
-const procesos2 = [];
-
-//algoritmosPlanificacion.primeroEntrar_primeroSalir
-//algoritmosPlanificacion.trabajoMas_corto
-//algoritmosPlanificacion.tiempoRestante_masCorto
-
-let tick = { contador: 0 };
+let tick;
 let roundRobin_activado = false;
-let planificadorCPU = new Planificador(procesos, algoritmosPlanificacion.primeroEntrar_primeroSalir);
+let planificadorCPU;
 
-export function asignarProcesos(nombre, inicio, duracion, bloqueo) {
-    
-}
+export function configurarAlgoritmoProcesos(procesos, algoritmoPlanificacion, quantum) {
+    tick = { contador: 0 };
 
-
-export function configurarAlgoritmoProcesos(algoritmoPlanificacion, quantum) {
     switch(algoritmoPlanificacion) {
         case "FCFS":
             planificadorCPU = new Planificador(procesos, algoritmosPlanificacion.primeroEntrar_primeroSalir);
@@ -91,6 +37,24 @@ export function configurarAlgoritmoProcesos(algoritmoPlanificacion, quantum) {
     planificadorCPU.iniciar();
 }
 
+export function configurarProcesosYBloqueos(procesos, bloqueos) {
+    const normalizar = nombre => nombre.toLowerCase().replace(/s$/, '');
+
+    const listaBloqueos = procesos.map(([nombre]) => {
+    const nombreNormalizado = normalizar(nombre);
+    return bloqueos
+        .filter(([, , nombreBloqueo]) => normalizar(nombreBloqueo) === nombreNormalizado)
+        .map(([empiezaEn, duracion]) => ({ empiezaEn, duracion }));
+    });
+
+    const instancias = procesos.map(([nombre, prioridad, tiempo], i) =>
+        new Proceso(nombre, prioridad, tiempo, listaBloqueos[i])
+    );
+
+    console.log(instancias);
+    return instancias;
+}
+
 export async function gestionProcesos(interfaz, actualizarGrafica, tiempoCiclos) { 
     while(!planificadorCPU.terminacion()) {
         await reloj.tiempo(tiempoCiclos);
@@ -108,11 +72,12 @@ export async function gestionProcesos(interfaz, actualizarGrafica, tiempoCiclos)
         reloj.ciclo(tick);
     }
 
-    let tiempoPlanificando = planificadorCPU.getTiempoPlanificacion();
-    imprimirEstadisticas(interfaz, tiempoPlanificando);
+    let tiempoPlanificando      = planificadorCPU.getTiempoPlanificacion();
+    let procesosPlanificador    = planificadorCPU.getProcesos();
+    imprimirEstadisticas(procesosPlanificador, interfaz, tiempoPlanificando);
 }
 
-function imprimirEstadisticas(interfaz, tiempoPlanificando) {
+function imprimirEstadisticas(procesos, interfaz, tiempoPlanificando) {
     let tiempoCPU_encendida = tick.contador - 1;
     let numeroProcesos      = procesos.length;
     let usoTotal_CPU        = procesos.reduce((suma, proceso) => suma + proceso.duracion, 0);

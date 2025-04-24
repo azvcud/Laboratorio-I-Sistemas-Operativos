@@ -115,6 +115,10 @@ export class Planificador {
         return nombreProcesos;
     }
 
+    getProcesos() {
+        return this.procesos;
+    }
+
     visualizarDatosConsola(interfaz) {
         interfaz('');
         if(this.contadorQuantum === 1) { interfaz('🧊 Quantum'); }
