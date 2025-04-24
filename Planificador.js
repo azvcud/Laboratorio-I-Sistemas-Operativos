@@ -87,10 +87,7 @@ export class Planificador {
     }
 
     verificarProcesosExistentes() {
-        if(this.tiempoPlanificacion > 0 && this.colaBloqueo.size === 0 && this.procesoEjecucion == null && this.colaEspera.size === 1 && this.planificacionFinal === false)
-        { this.contadorQuantum = this.quantum + 1; this.planificacionFinal = true; }
-
-        return (this.colaEspera.size > 0 || this.colaBloqueo.size > 0 || this.procesoEjecucion != null); 
+        return (this.colaEspera.size > 0 || this.colaBloqueo.size > 0 || this.procesoEjecucion != null);
     }
 
     setQuantum(quantum) {
