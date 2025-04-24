@@ -8,6 +8,7 @@ export class Planificador {
         this.quantum = 0;
         this.contadorQuantum = 0;
         this.tiempoPlanificacion = 0;
+        this.planificacionFinal = false;
         this.algoritmoPlanificador = algoritmoPlanificador;
     }
 
@@ -86,7 +87,10 @@ export class Planificador {
     }
 
     verificarProcesosExistentes() {
-        return (this.colaEspera.size > 0 || this.colaBloqueo > 0 || this.procesoEjecucion != null)
+        if(this.tiempoPlanificacion > 0 && this.colaBloqueo.size === 0 && this.procesoEjecucion == null && this.colaEspera.size === 1 && this.planificacionFinal === false)
+        { this.contadorQuantum = this.quantum + 1; this.planificacionFinal = true; }
+
+        return (this.colaEspera.size > 0 || this.colaBloqueo.size > 0 || this.procesoEjecucion != null); 
     }
 
     setQuantum(quantum) {
